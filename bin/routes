@@ -1,4 +1,0 @@
-GET      /player                   controllers.PlayerController.findByName(name: String)
-PUT      /player	               controllers.PlayerController.create
-
-

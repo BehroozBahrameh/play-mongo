@@ -7,6 +7,7 @@ import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc._
 import play.modules.reactivemongo._
+import play.api.libs.concurrent.Execution.Implicits._
 import reactivemongo.api.ReadPreference
 import reactivemongo.play.json._
 import reactivemongo.play.json.collection.JSONCollection
@@ -17,7 +18,7 @@ import models.PlayerModel
 import models.NewPlayer
 
 @Singleton
-class PlayerController @Inject() (playerService: PlayerService)(implicit exec: ExecutionContext) extends Controller {
+class PlayerController @Inject() (playerService: PlayerService) extends Controller {
   
   val transformer: Reads[JsObject] =
     Reads.jsPickBranch[JsString](__ \ "name") and

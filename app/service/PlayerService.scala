@@ -18,7 +18,10 @@ class PlayerService @Inject() (playerDao: playerDao){
       case Some(player) => Future(Json.obj("error" -> "Player already exists."))
       case None => 
         val player = PlayerModel.fromNewPlayer(newPlayer)
-        playerDao.insert(player) map { res => player.toJson }
+        playerDao.createNewPlayer(player) map { res => res.nModified match {
+          case 0 => Json.obj("error" -> "Player already exists")
+          case _ => player.toJson }
+        }
     } }
   }
   

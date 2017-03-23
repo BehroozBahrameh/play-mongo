@@ -16,6 +16,7 @@ import service.PlayerService
 import scala.concurrent.{ExecutionContext, Future}
 import models.PlayerModel
 import models.NewPlayer
+import models.UpdatePlayerScore
 
 @Singleton
 class PlayerController @Inject() (playerService: PlayerService) extends Controller {
@@ -23,6 +24,12 @@ class PlayerController @Inject() (playerService: PlayerService) extends Controll
   val transformer: Reads[JsObject] =
     Reads.jsPickBranch[JsString](__ \ "name") and
       Reads.jsPickBranch[JsString](__ \ "session") reduce
+
+  val updateScoreTransformer: Reads[JsObject] =
+    Reads.jsPickBranch[JsString](__ \ "playerId") and
+      Reads.jsPickBranch[JsString](__ \ "session") and
+        Reads.jsPickBranch[JsNumber](__ \ "score") and
+          Reads.jsPickBranch[JsNumber](__ \ "timeStamp") reduce
   
   def create = Action.async(parse.json) { request =>
        request.body.transform(transformer) match {
@@ -32,5 +39,12 @@ class PlayerController @Inject() (playerService: PlayerService) extends Controll
   
   def findByName(name: String) = Action.async {
     playerService.findPlayer(name) map { res => Ok(res) }
+  }
+
+  def updateScore() = Action.async(parse.json){request =>
+    request.body.transform(updateScoreTransformer) match {
+      case JsSuccess(player, _) => playerService.updateScore(UpdatePlayerScore.fromJson(player)) map { res => Ok(res)}
+      case _ => Future.successful(BadRequest("Invalid JSON"))
+    }
   }
 }

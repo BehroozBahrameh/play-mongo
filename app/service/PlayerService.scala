@@ -9,6 +9,7 @@ import reactivemongo.bson.BSONObjectID
 import org.joda.time.DateTime
 import scala.concurrent.Future
 import models.NewPlayer
+import models.UpdatePlayerScore
 
 @Singleton
 class PlayerService @Inject() (playerDao: playerDao){
@@ -26,6 +27,14 @@ class PlayerService @Inject() (playerDao: playerDao){
       case Some(player) => player.toJson
       case None => Json.obj("error" -> "Player not found")
     } }
+  }
+
+  def updateScore(updatePlayerScore: UpdatePlayerScore) : Future[JsObject] = {
+    playerDao.updatePlayerScore(updatePlayerScore) map {res => res match {
+          case true => updatePlayerScore.toJson
+          case false => Json.obj("error" -> "Player Not found Or new score is not higher than old one!")
+      } 
+    }
   }
   
 }
